@@ -188,5 +188,28 @@ def read_client_earners(client_name: str, credentials: HTTPBasicCredentials = De
         )
     return earners
 
+@app.get("/api/earners/{earner_id}/heartbeats/")
+def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = Depends(verify_credentials)):
+    with Session(engine) as session:
+        subquery = (
+            select(
+                EarnerHeartBeat.from_client_id,
+                func.max(EarnerHeartBeat.created_at).label("latest_heartbeat")
+            )
+            .filter(EarnerHeartBeat.from_earner == earner_id)
+            .group_by(EarnerHeartBeat.from_client_id)
+            .subquery()
+        )
+
+        heartbeats = (
+            session.exec(
+                select(EarnerHeartBeat)
+                .join(subquery, (EarnerHeartBeat.from_client_id == subquery.c.from_client_id) &
+                      (EarnerHeartBeat.created_at == subquery.c.latest_heartbeat))
+            )
+            .all()
+        )
+    return heartbeats
+
 
 app.mount("/", StaticFiles(directory="public", html=True), name="static")

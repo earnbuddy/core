@@ -1,11 +1,21 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { clients, uuids } from '$lib/api';
 
 	export let name: string;
 	export let img: string;
 	export let description: string;
 	export let signup_link: string;
+	let heartbeats: object[] = [];
+
+	// Get the uuids from the extra_data in the heartbeats
+	// get the heartbeats from the api on mount /api/earners/{earner_id}/heartbeats
+	onMount(() => {
+		fetch(`/api/earners/${name}/heartbeats/`)
+			.then(res => res.json())
+			.then(data => {
+				heartbeats = data;
+			});
+	})
 
 </script>
 
@@ -25,8 +35,8 @@
 	<div>
 		<h4 class="font-medium">UUID List:</h4>
 		<ul>
-			{#each $uuids as item (item.uuid)}
-				<li>{item.device_name} - {item.uuid}</li>
+			{#each heartbeats as item}
+				<li>{item.from_client_id} - {item.extra_data.uuid}</li>
 			{/each}
 		</ul>
 		<p class="font-medium text-red-500">You need to manually add these to your account</p>
