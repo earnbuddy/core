@@ -134,7 +134,7 @@ def read_earner_settings(earner_id: str, credentials: HTTPBasicCredentials = Dep
     return earner
 
 
-@app.get("/api/earners/settings")
+@app.get("/api/earners/settings/")
 def read_earners(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
         earners = session.exec(select(Earner)).all()

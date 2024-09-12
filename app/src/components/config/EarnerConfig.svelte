@@ -11,13 +11,11 @@
 
 	onMount(() => {
 		const unsubscribe = configs.subscribe(config => {
-			console.log('config', config);
 			// Convert config object to an array and find the config based on the name from the api
 			const configData = Object.values(config).find((c: any) => c.id === name);
-			console.log('configData', configData);
 			if (configData) {
 				// Replace single quotes with double quotes before parsing
-				const settings = JSON.parse(configData.settings.replace(/'/g, '"'));
+				const settings = configData.settings;
 				options = Object.entries(settings).map(([name, value]) => ({ name, value: value as string }));
 			}
 		});
