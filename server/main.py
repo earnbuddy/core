@@ -1,11 +1,13 @@
 import json
+import os
 from datetime import datetime
 from typing import Dict, Any
 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket, HTTPException, Depends, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import func
-from sqlmodel import  Session, select
+from sqlmodel import Session, select
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocketDisconnect
 
@@ -20,6 +22,22 @@ app_ws = []
 
 app = FastAPI()
 
+AUTH_USERNAME = os.getenv("AUTH_USERNAME", default="admin")
+AUTH_PASSWORD = os.getenv("AUTH_PASSWORD", default="admin")
+
+# Initialize HTTP Basic Authentication
+security = HTTPBasic()
+
+
+def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    if credentials.username != AUTH_USERNAME or credentials.password != AUTH_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+
 # add cors allow all
 app.add_middleware(
     CORSMiddleware,
@@ -31,13 +49,15 @@ app.add_middleware(
 
 
 @app.get("/api/clients/", response_model=list[Client])
-def read_clients():
+def read_clients(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
         clients = session.exec(select(Client)).all()
     return clients
 
+
 @app.post("/api/clients/{client_name}/heartbeat/")
-async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData):
+async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData,
+                           credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     print(client_name)
     with Session(engine) as session:
         # check if client exists
@@ -71,7 +91,8 @@ async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData):
 
 
 @app.websocket("/api/clients/{client_name}/ws")
-async def websocket_endpoint(client_name: str, websocket: WebSocket):
+async def websocket_endpoint(client_name: str, websocket: WebSocket,
+                             credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     await websocket.accept()
     clients_ws.append(websocket)
     try:
@@ -81,8 +102,10 @@ async def websocket_endpoint(client_name: str, websocket: WebSocket):
     except WebSocketDisconnect:
         clients.remove(websocket)
 
+
 @app.post("/api/earners/{earner_id}/settings/")
-async def handle_earner_settings(earner_id: str, settings: Dict[str, Any]):
+async def handle_earner_settings(earner_id: str, settings: Dict[str, Any],
+                                 credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     print(earner_id)
     print(settings)
 
@@ -101,22 +124,26 @@ async def handle_earner_settings(earner_id: str, settings: Dict[str, Any]):
             session.refresh(earner)
     return earner
 
+
 @app.get("/api/earners/{earner_id}/settings/")
-def read_earner_settings(earner_id: str):
+def read_earner_settings(earner_id: str, credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
         earner = session.get(Earner, earner_id)
         if not earner:
             raise HTTPException(status_code=404, detail="Earner not found")
     return earner
 
+
 @app.get("/api/earners/settings")
-def read_earners():
+def read_earners(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
         earners = session.exec(select(Earner)).all()
     return earners
 
+
 @app.post("/api/clients/{client_name}/{earner_id}/heartbeat/")
-async def handle_earner_heartbeat(client_name: str, earner_id: str, heartbeat_data: EarnerHeartBeat):
+async def handle_earner_heartbeat(client_name: str, earner_id: str, heartbeat_data: EarnerHeartBeat,
+                                  credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     print(client_name)
     print(earner_id)
     print(heartbeat_data)
@@ -139,7 +166,7 @@ async def handle_earner_heartbeat(client_name: str, earner_id: str, heartbeat_da
 
 
 @app.get("/api/clients/{client_name}/earners/")
-def read_client_earners(client_name: str):
+def read_client_earners(client_name: str, credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
         subquery = (
             select(
@@ -154,10 +181,12 @@ def read_client_earners(client_name: str):
         earners = (
             session.exec(
                 select(EarnerHeartBeat)
-                .join(subquery, (EarnerHeartBeat.from_earner == subquery.c.from_earner) & (EarnerHeartBeat.created_at == subquery.c.latest_heartbeat))
+                .join(subquery, (EarnerHeartBeat.from_earner == subquery.c.from_earner) & (
+                        EarnerHeartBeat.created_at == subquery.c.latest_heartbeat))
             )
             .all()
         )
     return earners
+
 
 app.mount("/", StaticFiles(directory="public", html=True), name="static")
