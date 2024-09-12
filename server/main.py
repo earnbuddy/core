@@ -155,7 +155,7 @@ async def handle_earner_heartbeat(client_name: str, earner_id: str, heartbeat_da
             cpu_usage=heartbeat_data.cpu_usage,
             ram_usage=heartbeat_data.ram_usage,
             uptime=heartbeat_data.uptime,
-            # extra_data=heartbeat_data.extra,
+            extra_data=heartbeat_data.extra,
             created_at=datetime.now().isoformat()
         )
         session.add(earner_heartbeat)
