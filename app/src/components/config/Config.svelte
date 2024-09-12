@@ -109,5 +109,13 @@
 			signup_link="https://spide.network/register.html?543ec4"
 			options={[{name: 'email'}, {name: 'password'}]}
 		/>
+
+		<EarnerConfig
+			name="NodePay"
+			img="/earners/NodePay.svg"
+			description="See <a href='https://github.com/XternA/income-generator/wiki/NodePay'>https://github.com/XternA/income-generator/wiki/NodePay</a> for more info"
+			signup_link="https://app.nodepay.ai/register?ref=ci6TGnbNA9UEKMX"
+			options={[{name: 'cookie'}]}
+		/>
 	</div>
 </div>

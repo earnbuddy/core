@@ -39,7 +39,7 @@
     <div class="grid grid-cols-2 mb-6">
         <div>
             <h3 class="font-medium text-xl">{name}</h3>
-            <p>{description}</p>
+            <p>{@html description}</p>
             <a href={signup_link} class="bg-blue-500 text-white rounded px-2 py-1">Sign up -&gt;</a>
         </div>
         <div class="flex justify-center items-center">
