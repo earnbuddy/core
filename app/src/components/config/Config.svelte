@@ -59,7 +59,7 @@
 			img="/earners/Repocket.png"
 			description=""
 			signup_link="https://link.repocket.com/E8Zq"
-			options={[{name: 'email'}, {name: 'password'}]}
+			options={[{name: 'email'}, {name: 'api_key'}]}
 		/>
 
 		<EarnerConfig
