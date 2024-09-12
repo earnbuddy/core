@@ -85,5 +85,29 @@
 			signup_link="https://www.packetshare.io/?code=8366031CC65F0B18"
 			options={[{name: 'email'}, {name: 'password'}]}
 		/>
+
+		<EarnerConfig
+			name="GaGaNode"
+			img="/earners/gaga-logo.svg"
+			description=""
+			signup_link="https://www.gaganode.com/"
+			options={[{name: 'token'}]}
+		/>
+
+		<EarnerConfig
+			name="BearShare"
+			img="/earners/bear-share.png"
+			description=""
+			signup_link="https://app.bearshare.app/register?ref=933888aacaa3f989fc069ba7bf9afc1fa53d31e8cb4210e246f"
+			options={[{name: 'email'}, {name: 'password'}]}
+		/>
+
+		<EarnerConfig
+			name="SpideNetwork"
+			img="/earners/spide-network.png"
+			description=""
+			signup_link="https://spide.network/register.html?543ec4"
+			options={[{name: 'email'}, {name: 'password'}]}
+		/>
 	</div>
 </div>
