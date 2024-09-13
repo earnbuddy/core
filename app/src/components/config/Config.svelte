@@ -1,12 +1,19 @@
 <script>
 	import EarnerConfig from './EarnerConfig.svelte';
 	import ProxyrackUUIDList from './ProxyrackUUIDList.svelte';
-
 </script>
 
 <div>
 	<h1 class="mt-2 text-2xl text-white font-medium">Settings</h1>
 	<div class="flex flex-col gap-4">
+		<EarnerConfig
+			name="EarnApp"
+			img="/earners/earnapp.png"
+			description=""
+			signup_link="https://earnapp.com/i/1BGXdR4W"
+			options={[]}
+		/>
+
 		<EarnerConfig
 			name="HoneyGain"
 			img="/earners/Honeygain.png"

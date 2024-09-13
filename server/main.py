@@ -212,4 +212,4 @@ def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = D
     return heartbeats
 
 
-app.mount("/", StaticFiles(directory="public", html=True), name="static")
+# admin

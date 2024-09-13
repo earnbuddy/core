@@ -9,13 +9,13 @@
 
 	// Get the uuids from the extra_data in the heartbeats
 	// get the heartbeats from the api on mount /api/earners/{earner_id}/heartbeats
-	onMount(() => {
-		fetch(`/api/earners/${name}/heartbeats/`)
-			.then(res => res.json())
-			.then(data => {
-				heartbeats = data;
-			});
-	})
+	// onMount(() => {
+	// 	fetch(`/api/earners/${name}/heartbeats/`)
+	// 		.then(res => res.json())
+	// 		.then(data => {
+	// 			heartbeats = data;
+	// 		});
+	// })
 
 </script>
 

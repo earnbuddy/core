@@ -4,15 +4,6 @@
 	export let client;
 	let earners = [];
 
-	onMount(async () => {
-		// and set it to earners
-		fetch(`/api/clients/${client}/earners/`)
-			.then(res => res.json())
-			.then(data => {
-				earners = data;
-			})
-			.catch(err => console.error(err));
-	});
 </script>
 
 <div class="flex gap-1 flex-wrap">

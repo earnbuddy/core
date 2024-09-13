@@ -1,37 +1,37 @@
 <script lang="ts">
     import {onMount} from 'svelte';
-    import {configs} from '$lib/api';
-    import {updateConfig} from '$lib/api';
+    import {
+        useQueryClient,
+        createQuery,
+        createMutation,
+    } from '@tanstack/svelte-query'
+    import {settingsQuery} from "$lib/queries";
 
     export let name: string;
     export let img: string;
     export let description: string;
     export let signup_link: string;
     export let options: { name: string, value: string }[] = [];
+    export let show_extra_data_list: boolean = false;
+    export let extra_data_propperty: string | null = null;
 
-    onMount(() => {
-        const unsubscribe = configs.subscribe(config => {
-            // Convert config object to an array and find the config based on the name from the api
-            const configData = Object.values(config).find((c: any) => c.id === name);
-            if (configData) {
-                const settings = configData.settings;
-                // Merge the options with the settings from the API
-                options = options.map(option => ({
-                    name: option.name,
-                    value: settings[option.name] || option.value
-                }));
-            }
-        });
-        return unsubscribe;
-    });
+    const client = useQueryClient()
 
-    function saveConfig() {
-        const config = options.reduce((acc, option) => {
-            acc[option.name] = option.value;
-            return acc;
-        }, {});
-        updateConfig(name, config);
-    }
+    $: settings = settingsQuery();
+
+    const updateMutation = createMutation({
+        mutationFn: async (data: any) => {
+            const response = await fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        },
+        onSuccess: client.invalidateQueries({queryKey: 'settings'}),
+    })
 
 </script>
 
@@ -59,6 +59,10 @@
                         id="{option.name}" type="text" bind:value={option.value}>
             </div>
         {/each}
+        {#if show_extra_data_list}
+            <div>
+            </div>
+        {/if}
     </div>
     <button class="bg-blue-500 text-white rounded px-2 py-1 mt-2" on:click={saveConfig}>Save and send to clients
     </button>
