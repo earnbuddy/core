@@ -47,6 +47,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/", StaticFiles(directory="public", html=True), name="static")
+
 
 @app.get("/api/clients/", response_model=list[Client])
 def read_clients(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
@@ -58,7 +60,6 @@ def read_clients(credentials: HTTPBasicCredentials = Depends(verify_credentials)
 @app.post("/api/clients/{client_name}/heartbeat/")
 async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData,
                            credentials: HTTPBasicCredentials = Depends(verify_credentials)):
-    print(client_name)
     with Session(engine) as session:
         # check if client exists
         # if not, create new client with id and the heartbeat data
@@ -66,7 +67,6 @@ async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData,
         client = session.exec(select(Client).filter(Client.device_name == client_name)).first()
 
         if not client:
-            print("Creating new client")
             client = Client()
             client.device_name = client_name
             client.last_ping = datetime.now()
@@ -78,7 +78,6 @@ async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData,
             session.commit()
             session.refresh(client)
         else:
-            print("Updating existing client")
             client.last_ping = datetime.now()
             client.client_version = heartbeat_data.client_version
             client.public_ip = heartbeat_data.public_ip
@@ -106,19 +105,14 @@ async def websocket_endpoint(client_name: str, websocket: WebSocket,
 @app.post("/api/earners/{earner_id}/settings/")
 async def handle_earner_settings(earner_id: str, settings: Dict[str, Any],
                                  credentials: HTTPBasicCredentials = Depends(verify_credentials)):
-    print(earner_id)
-    print(settings)
-
     with Session(engine) as session:
         earner = session.get(Earner, earner_id)
         if not earner:
-            print("Creating new earner")
             earner = Earner(id=earner_id, settings=settings)
             session.add(earner)
             session.commit()
             session.refresh(earner)
         else:
-            print("Updating existing earner")
             earner.settings = settings
             session.commit()
             session.refresh(earner)
@@ -144,10 +138,6 @@ def read_earners(credentials: HTTPBasicCredentials = Depends(verify_credentials)
 @app.post("/api/clients/{client_name}/{earner_id}/heartbeat/")
 async def handle_earner_heartbeat(client_name: str, earner_id: str, heartbeat_data: EarnerHeartBeat,
                                   credentials: HTTPBasicCredentials = Depends(verify_credentials)):
-    print(client_name)
-    print(earner_id)
-    print(heartbeat_data)
-
     with Session(engine) as session:
         earner_heartbeat = EarnerHeartBeat(
             from_client_id=client_name,
@@ -188,6 +178,7 @@ def read_client_earners(client_name: str, credentials: HTTPBasicCredentials = De
         )
     return earners
 
+
 @app.get("/api/earners/{earner_id}/heartbeats/")
 def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     with Session(engine) as session:
@@ -210,6 +201,3 @@ def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = D
             .all()
         )
     return heartbeats
-
-
-# admin
