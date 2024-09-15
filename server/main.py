@@ -47,7 +47,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/", StaticFiles(directory="public", html=True), name="static")
 
 
 @app.get("/api/clients/", response_model=list[Client])
@@ -201,3 +200,4 @@ def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = D
             .all()
         )
     return heartbeats
+app.mount("/", StaticFiles(directory="public", html=True), name="static")
