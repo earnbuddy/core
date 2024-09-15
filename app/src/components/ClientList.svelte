@@ -1,8 +1,14 @@
 <script lang="ts">
     import ClientListItem from './ClientListItem.svelte';
-    import {machinesQuery, settingsQuery} from "$lib/queries";
+    import { useQueryClient, createQuery } from '@tanstack/svelte-query'
+    import {getMachines} from "$lib/api";
 
-    $: machines = machinesQuery();
+    const machines = createQuery({
+        queryKey: ['machines'],
+        queryFn: getMachines,
+        refetchInterval: 10000,
+    });
+
 </script>
 
 <div class="bg-slate-50 rounded p-2">

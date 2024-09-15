@@ -1,6 +1,5 @@
 <script>
 	import EarnerConfig from './EarnerConfig.svelte';
-	import ProxyrackUUIDList from './ProxyrackUUIDList.svelte';
 </script>
 
 <div>
@@ -12,6 +11,8 @@
 			description=""
 			signup_link="https://earnapp.com/i/1BGXdR4W"
 			options={[]}
+			show_extra_data_list={true}
+			extra_data_propperty="uuid"
 		/>
 
 		<EarnerConfig
@@ -54,11 +55,13 @@
 			options={[{name: 'email'}, {name: 'password'}]}
 		/>
 
-		<ProxyrackUUIDList
+		<EarnerConfig
 			name="Proxyrack"
 			img="earners/Proxyrack.png"
 			description=""
 			signup_link="https://peer.proxyrack.com/ref/m5muudlu4rae0rwh11rlwrtsdnm2jvudkgajebh4"
+			show_extra_data_list={true}
+			extra_data_propperty="uuid"
 		/>
 
 		<EarnerConfig

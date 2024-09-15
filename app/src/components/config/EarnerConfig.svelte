@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { useQueryClient, createQuery, createMutation } from '@tanstack/svelte-query';
-    import { settingsQuery } from "$lib/queries";
+    import {onMount} from 'svelte';
+    import {useQueryClient, createQuery, createMutation} from '@tanstack/svelte-query';
+    import {getEarnersHeartBeat, getMachines, getSettings} from "$lib/api";
 
     export let name: string;
     export let img: string;
@@ -13,35 +13,60 @@
 
     const client = useQueryClient();
 
-    let settings = [];
-
-    // Fetch settings on mount
-    onMount(async () => {
-        const response = await fetch('/api/earners/settings/');
-        settings = await response.json();
-        const earnerSettings = settings.find(setting => setting.id === name);
-        if (earnerSettings) {
-            options = earnerSettings.settings.options;
-        }
+    const settings = createQuery({
+        queryKey: ['settings'],
+        queryFn: getSettings
     });
 
-    const updateMutation = createMutation({
-        mutationFn: async (data: any) => {
-            const response = await fetch(`/api/earners/${name}/settings/`, {
+    onMount(async () => {
+        const data = await client.fetchQuery({
+            queryKey: ['settings'],
+            queryFn: getSettings
+        });
+        const eanerSetting = data.find((s: any) => s.id === name);
+        if (eanerSetting) {
+            options = options.map(option => ({
+                name: option.name,
+                value: eanerSetting.settings[option.name] || ''
+            }));
+        }
+
+    });
+
+    const earnerHeartbeat = createQuery({
+        queryKey: ['earnerHeartbeat', name],
+        queryFn: () => getEarnersHeartBeat(name)
+    });
+
+    const settingsMutation = createMutation({
+        mutationFn: () => {
+            const payload = options.reduce((acc, option) => {
+                acc[option.name] = option.value;
+                return acc;
+            }, {});
+
+            return fetch(`/api/earners/${name}/settings/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
-            return response.json();
         },
-        onSuccess: () => client.invalidateQueries({ queryKey: 'settings' }),
+        onMutate: async (data) => {
+            await client.cancelQueries('settings');
+            const previousValue = client.getQueryData('settings');
+            client.setQueryData('settings', data);
+            return {previousValue};
+        },
+        onError: (err, data, context) => {
+            client.setQueryData('settings', context.previousValue);
+        },
+        onSettled: () => {
+            client.invalidateQueries('settings');
+        },
     });
 
-    function saveConfig() {
-        $updateMutation.mutate({ name, options });
-    }
 </script>
 
 <div class="bg-slate-50 rounded p-2">
@@ -61,14 +86,30 @@
     <div class="flex flex-col gap-2">
         {#each options as option (option.name)}
             <div class="grid grid-cols-8 gap-6 w-full">
-                <label class="font-medium col-span-2 md:col-span-1 text-right" for="{option.name}">{option.name}:</label>
+                <label class="font-medium col-span-2 md:col-span-1 text-right" for="{option.name}">{option.name}
+                    :</label>
                 <input
-                    class="w-full rounded px-1 py-0.5 bg-slate-100 col-span-6 md:col-span-7 border border-slate-300 active:border-blue-300 active:shadow"
-                    id="{option.name}" type="text" bind:value={option.value}>
+                        class="w-full rounded px-1 py-0.5 bg-slate-100 col-span-6 md:col-span-7 border border-slate-300 active:border-blue-300 active:shadow"
+                        id="{option.name}" type="text" bind:value={option.value}>
             </div>
         {/each}
         {#if show_extra_data_list}
+            {#if $earnerHeartbeat.isFetching}
+                <div>Loading...</div>
+            {:else}
+                {#if $earnerHeartbeat.isError}
+                    <div>Error: {$earnerHeartbeat.error.message}</div>
+                {/if}
+                {#if $earnerHeartbeat.isSuccess}
+                    {#each $earnerHeartbeat.data as entry}
+                        <div>{entry.from_client_id} : {entry.extra_data[extra_data_propperty]}</div>
+                    {/each}
+                {/if}
+            {/if}
         {/if}
     </div>
-    <button class="bg-blue-500 text-white rounded px-2 py-1 mt-2" on:click={saveConfig}>Save and send to clients</button>
+    <button class="bg-blue-500 text-white rounded px-2 py-1 mt-2" on:click={$settingsMutation.mutate()}>Save and
+        send to
+        clients
+    </button>
 </div>
