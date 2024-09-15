@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from typing import Dict, Any
 
+from fastapi_utilities import repeat_at
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, WebSocket, HTTPException, Depends, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -13,6 +14,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from database import create_db_and_tables, engine
 from models import Client, EarnerHeartBeat, Earner, HeartbeatData
+from tasks.HoneyGainTask import HoneyGainTask
 
 # An array of all clients used for the websocket
 clients = []
@@ -46,9 +48,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.mount("/", StaticFiles(directory="public", html=True), name="static")
-
 
 @app.get("/api/clients/", response_model=list[Client])
 def read_clients(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
@@ -201,3 +200,14 @@ def read_earner_heartbeats(earner_id: str, credentials: HTTPBasicCredentials = D
             .all()
         )
     return heartbeats
+
+
+@app.on_event("startup")
+@repeat_at(cron="*/1 * * * *") #every 2nd minute
+def run_tasks():
+    print("Running tasks")
+    HoneyGainTask().run()
+
+
+app.mount("/", StaticFiles(directory="public", html=True), name="static")
+
