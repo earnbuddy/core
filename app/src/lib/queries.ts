@@ -4,14 +4,14 @@ export const machinesQuery = () => {
     return createQuery({
         queryKey: ['machines'],
         queryFn: async () => await fetch('/api/clients/').then((r) => r.json()),
-        refetchInterval: 500,
+        refetchInterval: 5000,
     });
 };
 
 export const settingsQuery = () => {
     return createQuery({
         queryKey: ['settings'],
-        queryFn: async () => await fetch('/api/settings/').then((r) => r.json()),
-        refetchInterval: 500,
+        queryFn: async () => await fetch('/api/earners/settings/').then((r) => r.json()),
+
     });
 };
