@@ -18,10 +18,10 @@
 		<!--{/if}-->
 	</td>
 	<td>
-		<ClientEarnerList client={client.device_name}/>
+		<ClientEarnerList machine_name={client.device_name}/>
 	</td>
 	<td>{client.client_version}</td>
-	<td>{client.docker_version ? client.docker_version : '-'}</td>
+	<td>{client.docker_version}</td>
 	<td>{client.system_platform}</td>
 	<td><button class="bg-blue-300 rounded px-1 py-0.5">Do</button></td>
 </tr>
