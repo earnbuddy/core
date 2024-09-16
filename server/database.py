@@ -1,10 +1,25 @@
-from sqlmodel import SQLModel, create_engine
+import os
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-engine = create_engine(sqlite_url)
+from fastapi import FastAPI
+from tortoise.contrib.fastapi import register_tortoise
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+
+TORTOISE_ORM = {
+    "connections": {"default": "sqlite://database.sqlite3"},
+    "apps": {
+        "models": {
+            "models": ["server.models", "aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
+
+def init_db(app: FastAPI) -> None:
+    register_tortoise(
+        app,
+        db_url=os.environ.get("DATABASE_URL"),
+        modules={"models": ["models"]},
+        generate_schemas=False,
+        add_exception_handlers=True,
+    )

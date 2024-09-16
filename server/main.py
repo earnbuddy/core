@@ -1,9 +1,10 @@
 import json
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, AsyncGenerator
 
-from fastapi_utilities import repeat_at
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, WebSocket, HTTPException, Depends, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -11,16 +12,51 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocketDisconnect
+from tortoise import generate_config, Tortoise
+from tortoise.contrib.fastapi import RegisterTortoise
+from database import init_db
 
-from database import create_db_and_tables, engine
 from models import Client, EarnerHeartBeat, Earner, HeartbeatData
 from tasks.HoneyGainTask import HoneyGainTask
 
-# An array of all clients used for the websocket
-clients = []
+@asynccontextmanager
+async def lifespan_test(app: FastAPI) -> AsyncGenerator[None, None]:
+    config = generate_config(
+        os.getenv("TORTOISE_TEST_DB", "sqlite://db.sqlite3"),
+        app_modules={"models": ["models"]},
+        testing=True,
+        connection_label="models",
+    )
+    async with RegisterTortoise(
+        app=app,
+        config=config,
+        generate_schemas=True,
+        add_exception_handlers=True,
+        _create_db=True,
+    ):
+        # db connected
+        yield
+        # app teardown
+    # db connections closed
+    await Tortoise._drop_databases()
 
-clients_ws = []
-app_ws = []
+
+def register_orm(app):
+    pass
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    if getattr(app.state, "testing", None):
+        async with lifespan_test(app) as _:
+            yield
+    else:
+        # app startup
+        async with register_orm(app):
+            # db connected
+            yield
+            # app teardown
+        # db connections closed
 
 app = FastAPI()
 
@@ -55,6 +91,16 @@ def read_clients(credentials: HTTPBasicCredentials = Depends(verify_credentials)
         clients = session.exec(select(Client)).all()
     return clients
 
+
+@app.delete("/api/clients/{client_name}/")
+def delete_client(client_name: str, credentials: HTTPBasicCredentials = Depends(verify_credentials)):
+    with Session(engine) as session:
+        client = session.get(Client, client_name)
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        session.delete(client)
+        session.commit()
+    return {"message": "Client deleted"}
 
 @app.post("/api/clients/{client_name}/heartbeat/")
 async def handle_heartbeat(client_name: str, heartbeat_data: HeartbeatData,

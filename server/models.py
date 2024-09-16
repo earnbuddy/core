@@ -59,3 +59,13 @@ class Earner(SQLModel, table=True):
 
     created_at: Optional[str] = Field(default=None)
     updated_at: Optional[str] = Field(default=None)
+
+class EarnerEarningsBase(SQLModel):
+    from_earner_id: str = Field(foreign_key="earner.id")
+    current_balance: float
+    total_earned: float
+    currency: str
+    created_at: Optional[str] = Field(default=None)
+
+class EarnerEarnings(EarnerEarningsBase, table=True):
+    id: int | None = Field(primary_key=True)

@@ -3,6 +3,6 @@ uvicorn
 websockets
 pydantic
 docker
-sqlmodel
-alembic
 fastapi-utilities
+tortoise-orm
+aerich
