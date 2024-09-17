@@ -1,6 +1,6 @@
 
 export const getMachines = async () => {
-    const response = await fetch('/api/clients/');
+    const response = await fetch('/api/machines/');
     return await response.json();
 }
 
@@ -10,7 +10,7 @@ export const getSettings = async () => {
 }
 
 export const getMachineHeartBeat = async (machineId: string) => {
-    const response = await fetch(`/api/clients/${machineId}/earners/`);
+    const response = await fetch(`/api/machines/${machineId}/earners/`);
     return await response.json();
 }
 

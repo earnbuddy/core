@@ -1,8 +1,2 @@
-fastapi
-uvicorn
-websockets
-pydantic
-docker
-fastapi-utilities
-tortoise-orm
-aerich
+django
+django-ninja

@@ -7,7 +7,7 @@
 </script>
 
 <tr class="hover:bg-slate-200">
-	<td>{client.device_name}</td>
+	<td>{client.name}</td>
 	<td>{client.public_ip}</td>
 	<td>
 		{client.last_ping ? new Date(client.last_ping).toLocaleString() : 'never'}
@@ -18,7 +18,7 @@
 		<!--{/if}-->
 	</td>
 	<td>
-		<ClientEarnerList machine_name={client.device_name}/>
+		<ClientEarnerList machine_name={client.name}/>
 	</td>
 	<td>{client.client_version}</td>
 	<td>{client.docker_version}</td>
