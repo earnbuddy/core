@@ -23,6 +23,11 @@ def save_earner_settings(request, earner_name: str, payload: EanerSettingsOutSch
     earner.save()
     return {"message": "received"}
 
+@api.get("/earners/{earner_name}/settings/")
+def get_earner_settings(request, earner_name: str):
+    earner = Earner.objects.get_or_create(name=earner_name)[0]
+    return earner.settings
+
 @api.get("/machines/", response=List[MachineOutSchema])
 def list_machines(request):
     return Machine.objects.all()
