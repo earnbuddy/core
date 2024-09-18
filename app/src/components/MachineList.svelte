@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ClientListItem from './ClientListItem.svelte';
+    import ClientListItem from './MachineListItem.svelte';
     import { useQueryClient, createQuery } from '@tanstack/svelte-query'
     import {getMachines} from "$lib/api";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ClientEarnerList from './ClientEarnerList.svelte';
+	import ClientEarnerList from './MachineEarnersList.svelte';
 
 	let isOnline = true;
 	export let client: any;

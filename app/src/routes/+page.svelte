@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ClientList from '../components/ClientList.svelte';
+    import ClientList from '../components/MachineList.svelte';
     import Config from '../components/config/Config.svelte';
 </script>
 <div class="flex flex-col gap-2 pt-6 px-2">
