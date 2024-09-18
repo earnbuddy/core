@@ -49,7 +49,7 @@
 
 		<EarnerConfig
 			name="Grass"
-			img="earners/Grass.png"
+			img="/earners/Grass.png"
 			description=""
 			signup_link="https://app.getgrass.io/register/?referralCode=RVNn4g7UKju8PC5"
 			options={[{name: 'email'}, {name: 'password'}]}
@@ -57,7 +57,7 @@
 
 		<EarnerConfig
 			name="Proxyrack"
-			img="earners/Proxyrack.png"
+			img="/earners/Proxyrack.png"
 			description=""
 			signup_link="https://peer.proxyrack.com/ref/m5muudlu4rae0rwh11rlwrtsdnm2jvudkgajebh4"
 			show_extra_data_list={true}

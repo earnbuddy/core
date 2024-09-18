@@ -1,11 +1,14 @@
 from typing import List
 
 from django.db.models import Max
+from django.shortcuts import render
 from ninja import NinjaAPI
+from ninja.security import HttpBasicAuth
 
 from earnbuddy.models import Machine, MachineHeartBeat, Earner, EarnerHeartBeat
 from earnbuddy.schemas import MachineHeartBeatInSchema, MachineOutSchema, EarnerHeartBeatInSchema, \
     EarnerHeartBeatOutSchema, EanerSettingsOutSchema
+
 
 api = NinjaAPI()
 
@@ -25,9 +28,9 @@ def list_machines(request):
     return Machine.objects.all()
 
 
-@api.get("/machines/{machine_id}/")
-def get_machine(request, machine_id: int):
-    return Machine.objects.get(id=machine_id)
+@api.get("/machines/{machine_name}/")
+def get_machine(request, machine_name: str):
+    return Machine.objects.get(pk=machine_name)
 
 
 @api.post("/machines/{machine_name}/heartbeat/")

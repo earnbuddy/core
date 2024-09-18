@@ -78,7 +78,7 @@
         </div>
         <div class="flex justify-center items-center">
             <a href="{signup_link}">
-                <img src={img} alt={name} class="w-auto h-20 object-cover rounded">
+                <img src="static{img}" alt={name} class="w-auto h-20 object-cover rounded">
             </a>
         </div>
     </div>

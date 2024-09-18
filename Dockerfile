@@ -28,14 +28,17 @@ COPY server/requirements.txt .
 # Install FastAPI and Uvicorn
 RUN pip install -r requirements.txt
 
-# Copy the built Svelte project from the builder stage
-COPY --from=builder /app/build /app/public
-
-# Copy the FastAPI application code
+# Copy the Django application code
 COPY /server .
+
+# Copy the built Svelte project from the builder stage
+COPY --from=builder /app/build /app/templates
+COPY --from=builder /app/assets /app/static
+
+RUN sed -i 's|"/|"/static/|g' /app/templates/index.html
 
 # Expose the port
 EXPOSE 8000
 
 # Command to run the FastAPI server
-CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python manage.py migrate &&  gunicorn wsgi --bind 0.0.0.0:8000 --workers=1"]
