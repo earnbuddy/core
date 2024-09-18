@@ -1,7 +1,4 @@
-fastapi
-uvicorn
-websockets
-pydantic
-docker
-sqlmodel
-alembic
+django
+django-ninja
+whitenoise
+gunicorn
