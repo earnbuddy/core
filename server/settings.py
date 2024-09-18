@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 SECRET_KEY = 'THIS KEY IS NOT SECURE BUT ALSO NOT USED FOR ANYTHING'
 
