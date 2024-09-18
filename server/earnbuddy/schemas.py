@@ -29,7 +29,7 @@ class EarnerHeartBeatInSchema(ModelSchema):
 class EarnerHeartBeatOutSchema(ModelSchema):
     class Meta:
         model = EarnerHeartBeat
-        exclude = ['earner']
+        exclude = []
 
 class EanerSettingsOutSchema(ModelSchema):
     class Meta:

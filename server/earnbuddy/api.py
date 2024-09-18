@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from django.db.models import Max
 from django.shortcuts import render
 from ninja import NinjaAPI
 from ninja.security import HttpBasicAuth
+from ninja.schema import Schema
 
 from earnbuddy.models import Machine, MachineHeartBeat, Earner, EarnerHeartBeat
 from earnbuddy.schemas import MachineHeartBeatInSchema, MachineOutSchema, EarnerHeartBeatInSchema, \
@@ -16,10 +17,15 @@ api = NinjaAPI()
 def list_earners_settings(request):
     return Earner.objects.all()
 
+class SettingsInput(Schema):
+    settings: dict
+
 @api.post("/earners/{earner_name}/settings/")
-def save_earner_settings(request, earner_name: str, payload: EanerSettingsOutSchema):
-    earner = Earner.objects.get_or_create(name=earner_name)[0]
-    earner.settings = payload.dict()
+def save_earner_settings(request, earner_name: str, payload: SettingsInput):
+    earner = Earner.objects.get_or_create(pk=earner_name)[0]
+    print(earner)
+    print(payload.dict()['settings'])
+    earner.settings = payload.dict()['settings']
     earner.save()
     return {"message": "received"}
 

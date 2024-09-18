@@ -23,7 +23,7 @@
             queryKey: ['settings'],
             queryFn: getSettings
         });
-        const eanerSetting = data.find((s: any) => s.id === name);
+        const eanerSetting = data.find((s: any) => s.name === name);
         if (eanerSetting) {
             options = options.map(option => ({
                 name: option.name,
@@ -50,7 +50,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({"settings": payload}),
             });
         },
         onMutate: async (data) => {
