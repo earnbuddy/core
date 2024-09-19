@@ -102,7 +102,7 @@
                 {/if}
                 {#if $earnerHeartbeat.isSuccess}
                     {#each $earnerHeartbeat.data as entry}
-                        <div>{entry.from_client_id} : {entry.extra_data[extra_data_propperty]}</div>
+                        <div>{entry.machine} : {entry.extra_data[extra_data_propperty]}</div>
                     {/each}
                 {/if}
             {/if}
